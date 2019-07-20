@@ -23,7 +23,7 @@ namespace StockMaster
         {
             if (MyProxy.GoodProxyServer.Count <= (Master.Scripts().Count() * 2))
             {
-                txtLog.AppendText(DateTime.Now.ToLongTimeString() + " TimerProxy: Count < Script");
+                txtLog.AppendText(DateTime.Now.ToLongTimeString() + " TimerProxy: Count(" + MyProxy.GoodProxyServer.Count.ToString() + ") < Script" + Environment.NewLine);
                 MyProxy.VerifyProxy();
             }
             else
@@ -31,7 +31,7 @@ namespace StockMaster
                 DateTime dt = DateTime.Now;
                 if (dt.Minute == 10 || dt.Minute == 25 || dt.Minute == 40 || dt.Minute == 55)
                 {
-                    txtLog.AppendText(DateTime.Now.ToLongTimeString() + " TimerProxy: 10,25,40,55");
+                    txtLog.AppendText(DateTime.Now.ToLongTimeString() + " TimerProxy: 10,25,40,55 Count(" + MyProxy.GoodProxyServer.Count.ToString() + ")" + Environment.NewLine);
                     MyProxy.GoodProxyServer.Clear();
                     MyProxy.VerifyProxy();
                 }
@@ -43,7 +43,7 @@ namespace StockMaster
             DateTime dt = DateTime.Now;
             if (dt.Minute == 00 || dt.Minute == 15 || dt.Minute == 30 || dt.Minute == 45)
             {
-                txtLog.AppendText(DateTime.Now.ToLongTimeString() + " TimerScript: 00,15,30,45");
+                txtLog.AppendText(DateTime.Now.ToLongTimeString() + " TimerScript: 00,15,30,45 Count(" + MyProxy.GoodProxyServer.Count.ToString() + ")" + Environment.NewLine);
                 RTStockPrice stockPrice = new RealTimeStockPrice.RTStockPrice();
                 var t = stockPrice.GetStockCall();
             }
