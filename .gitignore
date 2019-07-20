@@ -1,0 +1,14 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/StockPrice
+/RealTimePrice/obj
+/RealTimeStockPrice/bin/Release
+/RealTimeStockPrice/obj
+/StockMaster/bin/Debug/Output
+/StockMaster/bin/Release
+/StockMaster/obj
+/StockPriceTest/bin/Debug
+/StockPriceTest/bin/Release
+/StockPriceTest/obj
