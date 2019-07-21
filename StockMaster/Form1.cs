@@ -33,7 +33,7 @@ namespace StockMaster
                 {
                     if (dt.Minute == 10 || dt.Minute == 25 || dt.Minute == 40 || dt.Minute == 55)
                     {
-                        txtLog.AppendText(DateTime.Now.ToLongTimeString() + " TimerProxy: 10,25,40,55 Count(" + MyProxy.GoodProxyServer.Count.ToString() + ")" + Environment.NewLine);
+                        AddLog("TimerProxy: 10,25,40,55 Count(" + MyProxy.GoodProxyServer.Count.ToString() + ")");
                         MyProxy.GoodProxyServer.Clear();
                         MyProxy.VerifyProxy();
                     }
@@ -48,11 +48,41 @@ namespace StockMaster
             {
                 if (dt.Minute == 00 || dt.Minute == 15 || dt.Minute == 30 || dt.Minute == 45)
                 {
-                    txtLog.AppendText(DateTime.Now.ToLongTimeString() + " TimerScript: 00,15,30,45 Count(" + MyProxy.GoodProxyServer.Count.ToString() + ")" + Environment.NewLine);
+                    AddLog("TimerScript: 00,15,30,45 Count(" + MyProxy.GoodProxyServer.Count.ToString() + ")");
                     RTStockPrice stockPrice = new RealTimeStockPrice.RTStockPrice();
                     var t = stockPrice.GetStockCall();
                 }
             }
+        }
+
+        private void AddLog(string log)
+        {
+            txtLog.AppendText(DateTime.Now.ToString("hh:mm:ss tt") + " " + log + Environment.NewLine);
+        }
+
+        private void BtnStart_Click(object sender, EventArgs e)
+        {
+            if (timerScript.Enabled)
+            {
+                timerScript.Enabled = false;
+                timerProxy.Enabled = false;
+                btnStart.Text = "&Start";
+                AddLog("Timer Stopped");
+            }
+            else
+            {
+                timerScript.Enabled = true;
+                timerProxy.Enabled = true;
+                btnStart.Text = "&Stop";
+                AddLog("Timer Started");
+            }
+        }
+
+        private void Button2_Click(object sender, EventArgs e)
+        {
+            AddLog("Test run started. Count(" + MyProxy.GoodProxyServer.Count.ToString() + ")");
+            RTStockPrice stockPrice = new RealTimeStockPrice.RTStockPrice();
+            var t = stockPrice.GetStockCall(false);
         }
     }
 }
