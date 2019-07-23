@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="StockMasterModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="ScriptData">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Code" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="tDate" Type="datetime" Nullable="false" />
+          <Property Name="tOpen" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="tHigh" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="tLow" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="tClose" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Volume" Type="bigint" Nullable="false" />
+          <Property Name="EMA9" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="EMA21" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="tCall" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="tStatus" Type="varchar" MaxLength="50" />
+          <Property Name="tEntry" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="tExit" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="LotSize" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityContainer Name="StockMasterModelStoreContainer">
+          <EntitySet Name="ScriptData" EntityType="Self.ScriptData" Schema="dbo" store:Type="Tables" />
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="StockMasterModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="ScriptData">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Code" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="tDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="tOpen" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="tHigh" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="tLow" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="tClose" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Volume" Type="Int64" Nullable="false" />
+          <Property Name="EMA9" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="EMA21" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="tCall" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="tStatus" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="tEntry" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="tExit" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="LotSize" Type="Int32" Nullable="false" />
+        </EntityType>
+        <EntityContainer Name="StockMasterEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="ScriptDatas" EntityType="Self.ScriptData" />
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="StockMasterModelStoreContainer" CdmEntityContainer="StockMasterEntities">
+          <EntitySetMapping Name="ScriptDatas">
+            <EntityTypeMapping TypeName="StockMasterModel.ScriptData">
+              <MappingFragment StoreEntitySet="ScriptData">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Code" ColumnName="Code" />
+                <ScalarProperty Name="tDate" ColumnName="tDate" />
+                <ScalarProperty Name="tOpen" ColumnName="tOpen" />
+                <ScalarProperty Name="tHigh" ColumnName="tHigh" />
+                <ScalarProperty Name="tLow" ColumnName="tLow" />
+                <ScalarProperty Name="tClose" ColumnName="tClose" />
+                <ScalarProperty Name="Volume" ColumnName="Volume" />
+                <ScalarProperty Name="EMA9" ColumnName="EMA9" />
+                <ScalarProperty Name="EMA21" ColumnName="EMA21" />
+                <ScalarProperty Name="tCall" ColumnName="tCall" />
+                <ScalarProperty Name="tStatus" ColumnName="tStatus" />
+                <ScalarProperty Name="tEntry" ColumnName="tEntry" />
+                <ScalarProperty Name="tExit" ColumnName="tExit" />
+                <ScalarProperty Name="LotSize" ColumnName="LotSize" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

@@ -23,13 +23,15 @@ namespace RealTimeStockPrice
         private string URL_EMA = @"https://www.alphavantage.co/query?function=EMA&symbol=NSE:{{SYMBOL}}&interval={{INTERVAL}}&time_period={{TIME_PERIOD}}&series_type=close&apikey={{APIKEY}}&datatype=csv";
         private string URL_VWAP = @"https://www.alphavantage.co/query?function=VWAP&symbol=NSE:{{SYMBOL}}&interval={{INTERVAL}}&apikey={{APIKEY}}&datatype=csv";
 
+        private string _path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Output");
 
         List<StockCall> call = new List<StockCall>();
 
         public List<StockCall> GetStockCall(bool RunInThread = true)
         {
 
-            Master.MoveDirectoryFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Output"));
+            Master.MoveDirectoryFile(_path);
+
             foreach (var item in Master.Scripts())
             {
                 if (RunInThread)
@@ -93,11 +95,21 @@ namespace RealTimeStockPrice
             {
                 s.Append(Environment.NewLine + item.Date.ToString() + "," + item.Open.ToString("0.00") + "," + item.High.ToString("0.00") + "," + item.Low.ToString("0.00") + "," + item.Close.ToString("0.00") + "," + item.Volume.ToString("0.00") + "," + item.Body.ToString("0.00") + "," + item.Size.ToString("0.00") + "," + item.EMA9.ToString("0.00") + "," + item.EMA21.ToString("0.00") + "," + item.VWAP.ToString("0.00") + "," + item.Call);
             }
-            System.IO.File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Output", script.Code + "_" + script.ProxyDurty.ToString() + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".csv"), s.ToString());
-
-            var call = t.FirstOrDefault();
-            if (call.Call != string.Empty)
-                Master.Sendmail(call);
+            System.IO.File.WriteAllText(Path.Combine(_path, script.Code + "_" + script.ProxyDurty.ToString() + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".csv"), s.ToString());
+            var call = t.First();
+            if (call != null)
+            {
+                if (!string.IsNullOrEmpty(call.Call) && call.Date.Day == DateTime.Today.Day && call.Date.Month == DateTime.Today.Month)
+                {
+                    call.AvgVolume = t.Average(a => a.Volume);
+                    Master.Sendmail(call);
+                    if (!File.Exists(Path.Combine(_path, "_" + DateTime.Now.ToString("yyyyMMdd") + ".txt")))
+                    {
+                        System.IO.File.AppendAllText(Path.Combine(_path, "Tread_" + DateTime.Now.ToString("yyyyMMdd") + ".txt"), "Stock,Call,Date,Open,High,Low,Close,EMA21,Volume,Size");
+                    }
+                    System.IO.File.AppendAllText(Path.Combine(_path, "Tread_" + DateTime.Now.ToString("yyyyMMdd") + ".txt"),Environment.NewLine + call.Print());
+                }
+            }
             return t.ToList();
         }
     }
@@ -109,7 +121,7 @@ namespace RealTimeStockPrice
         public decimal High;
         public decimal Low;
         public decimal Close;
-        public decimal Volume;
+        public Decimal Volume;
         public decimal Body;
         public decimal Size;
         public bool tread;
@@ -161,16 +173,30 @@ namespace RealTimeStockPrice
 
     public class StockCall
     {
-        private string _output = @"
-            {{Stock}}: {{Call}} <br/>
-            Date: {{Date}} <br/>
-            Open: {{Open}} <br/>
-            High: {{High}} <br/>
-            Low: {{Low}} <br/>
-            Close: {{Close}} <br/>
-            EMA21: {{EMA21}} <br/>
-            Volume: {{Volume}} <br/>
-            Size: {{Size}} <br/>";
+        private string numStyle = "##,##,##0.00";
+        private string _output = @"{{Stock}},{{Call}},{{Date}},{{Open}},{{High}},{{Low}},{{Close}},{{EMA21}},{{Volume}},{{Size}}";
+
+        private string _mail = @"<style>
+                        .tbl tr td, .tbl tr th {
+                            padding: 3px 5px 3px 5px;
+                            border: 1px solid silver;
+                            text-align:left;
+                        }
+                        .BUY { background-color:lightgreen;}
+                        .SELL { background-color:lightcoral;}
+                    </style>
+                    <table style='border-collapse:collapse;font-family:Verdana,Arial;min-width:250px;'>    
+                            <tr class='{{Call}}'><th>{{Stock}}</th><th>{{Call}}</th></tr>
+                            <tr><td>Date</td><td style=''>{{Date}}</td></tr>
+                            <tr><td>Open</td><td>{{Open}}</td></tr>
+                            <tr><td>High</td><td>{{High}}</td></tr>
+                            <tr><td>Low</td><td>{{Low}}</td></tr>
+                            <tr><td>Close</td><td>{{Close}}</td></tr>
+                            <tr><td>EMA21</td><td>{{EMA21}}</td></tr>
+                            <tr><td>Volume</td><td>{{Volume}}({{Avg}})</td></tr>
+                            <tr><td>Body</td><td>{{Size}}({{Body}})</td></tr>    
+                    </table>";
+
         public string Stock { get; set; }
         public DateTime Date { get; set; }
         public Decimal Open { get; set; }
@@ -184,7 +210,11 @@ namespace RealTimeStockPrice
         public Decimal EMA21 { get; set; }
         public Decimal VWAP { get; set; }
         public String Call { get; set; }
-
+        public String Status { get; set; }
+        public Decimal Entry { get; set; }
+        public Decimal Exit { get; set; }
+        public int LotSize { get; set; }
+        public Decimal AvgVolume { get; set; }
         public string Print()
         {
             return _output.Replace("{{Stock}}", Stock)
@@ -196,7 +226,37 @@ namespace RealTimeStockPrice
                 .Replace("{{Low}}", this.Low.ToString("0.00"))
                 .Replace("{{EMA21}}", this.EMA21.ToString("0.00"))
                 .Replace("{{Size}}", this.Size.ToString("0.00"))
-                .Replace("{{Volume}}", this.Volume.ToString("0.00"));
+                .Replace("{{Volume}}", this.Volume.ToString());
+        }
+
+        public string MilSubject()
+        {
+            string _out = Call + " " + Stock;
+            if (Call == "BUY")
+            {
+                _out += " Above " + High.ToString(numStyle);
+            }
+            else
+            {
+                _out += " Below " + Low.ToString(numStyle);
+            }
+            return _out;
+        }
+
+        public string MailBody()
+        {
+            return _mail.Replace("{{Stock}}", Stock)
+                .Replace("{{Date}}", this.Date.ToLongDateString() + " " + this.Date.ToLongTimeString())
+                .Replace("{{Call}}", Call)
+                .Replace("{{Open}}", this.Open.ToString(numStyle))
+                .Replace("{{Close}}", this.Close.ToString(numStyle))
+                .Replace("{{High}}", this.High.ToString(numStyle))
+                .Replace("{{Low}}", this.Low.ToString(numStyle))
+                .Replace("{{EMA21}}", this.EMA21.ToString(numStyle))
+                .Replace("{{Size}}", this.Size.ToString(numStyle))
+                .Replace("{{Body}}", (this.Low * 0.003M).ToString(numStyle))
+                .Replace("{{Volume}}", Master.FormatVolume(this.Volume))
+                .Replace("{{Avg}}", Master.FormatVolume(this.AvgVolume));
         }
     }
 

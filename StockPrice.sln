@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockPriceTest", "StockPric
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockMaster", "StockMaster\StockMaster.csproj", "{48887959-34C3-4DE1-A398-02D606BA5210}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockMasterWeb", "StockMasterWeb\StockMasterWeb.csproj", "{FEF8EE4C-3383-4F83-B08E-983264F76DC5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{48887959-34C3-4DE1-A398-02D606BA5210}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48887959-34C3-4DE1-A398-02D606BA5210}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48887959-34C3-4DE1-A398-02D606BA5210}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEF8EE4C-3383-4F83-B08E-983264F76DC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEF8EE4C-3383-4F83-B08E-983264F76DC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEF8EE4C-3383-4F83-B08E-983264F76DC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEF8EE4C-3383-4F83-B08E-983264F76DC5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

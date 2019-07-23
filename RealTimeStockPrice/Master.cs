@@ -26,7 +26,7 @@ namespace RealTimeStockPrice
             {
                 string[] a = item.Split(',');
                 if (a[0] != "Script")
-                    lstScript.Add(new Script { Code = a[0], key = a[1]});
+                    lstScript.Add(new Script { Code = a[0], key = a[1] });
             }
         }
 
@@ -49,10 +49,10 @@ namespace RealTimeStockPrice
 
             ProxyServer t;
             if (script.ProxyDurty == false && !string.IsNullOrEmpty(script.ProxyURL) && script.ProxyPort > 0)
-                t = new ProxyServer { IsDurty = script.ProxyDurty, URL = script.ProxyURL,Port = script.ProxyPort};
+                t = new ProxyServer { IsDurty = script.ProxyDurty, URL = script.ProxyURL, Port = script.ProxyPort };
             else
                 t = MyProxy.GetProxy();
-            
+
             if (t == null)
             {
                 url = API_Proxy.Replace("{{URL}}", url);
@@ -111,43 +111,54 @@ namespace RealTimeStockPrice
             }
 
             // Copy all files.
-            FileInfo[] files = source.GetFiles();
+            FileInfo[] files = source.GetFiles("*.csv");
             foreach (FileInfo file in files)
             {
                 file.MoveTo(Path.Combine(destination.FullName, file.Name));
             }
         }
 
+        public static string FormatVolume(Decimal volume)
+        {
+            if (volume < 100000M)
+            {
+                return (volume / 1000M).ToString("0.0") + "K";
+            }
+            else
+            {
+                return (volume / 100000M).ToString("0.0") + "M";
+            }
+        }
         public static void Sendmail(StockCall call)
         {
-            using (SmtpClient client = new SmtpClient())
+            try
             {
-                client.DeliveryMethod = SmtpDeliveryMethod.Network;
-                client.EnableSsl = true;
-                client.Host = "smtp.mail.yahoo.com";
-                client.Port = 587;
-                // setup Smtp authentication
-                System.Net.NetworkCredential credentials = new System.Net.NetworkCredential("ygcfund@yahoo.com", "y@cfund!@#$");
-                client.UseDefaultCredentials = false;
-                client.Credentials = credentials;
-                using (MailMessage msg = new MailMessage())
+                using (SmtpClient client = new SmtpClient())
                 {
-                    msg.From = new MailAddress("ygcfund@yahoo.com", "Market Call");
-                    msg.To.Add(new MailAddress("mukeshbpatel@gmail.com", "Mukesh Patel"));
-                    msg.To.Add(new MailAddress("anjanampatel@gmail.com", "Anjana Patel"));
-                    msg.Subject = call.Call + " " + call.Stock;
-                    if (call.Call == "BUY")
+
+                    client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                    client.EnableSsl = true;
+                    client.Host = "smtp.mail.yahoo.com";
+                    client.Port = 587;
+                    // setup Smtp authentication
+                    System.Net.NetworkCredential credentials = new System.Net.NetworkCredential("ygcfund@yahoo.com", "y@cfund!@#$");
+                    client.UseDefaultCredentials = false;
+                    client.Credentials = credentials;
+                    using (MailMessage msg = new MailMessage())
                     {
-                        msg.Subject += " Above " + call.High.ToString("0.00");
+                        msg.From = new MailAddress("ygcfund@yahoo.com", "Market Call");
+                        msg.To.Add(new MailAddress("mukeshbpatel@gmail.com", "Mukesh Patel"));
+                        msg.To.Add(new MailAddress("anjanampatel@gmail.com", "Anjana Patel"));
+                        msg.Subject = call.MilSubject();
+                        msg.IsBodyHtml = true;
+                        msg.Body = call.MailBody();
+                        client.Send(msg);
                     }
-                    else
-                    {
-                        msg.Subject += " Below " + call.Low.ToString("0.00");
-                    }
-                    msg.IsBodyHtml = true;
-                    msg.Body = call.Print();
-                    client.Send(msg);
                 }
+            }
+            catch (Exception ex)
+            {
+
             }
         }
     }
