@@ -44,14 +44,19 @@ namespace StockMaster
         private void TimerScript_Tick(object sender, EventArgs e)
         {
             DateTime dt = DateTime.Now;
-            if (dt.Hour >= 9 && dt.Hour < 15)
-            {
+            var t = dt.Hour + dt.Minute;
+            if ((dt.Hour > 9 && dt.Hour < 15) || t==54)
+            {               
                 if (dt.Minute == 00 || dt.Minute == 15 || dt.Minute == 30 || dt.Minute == 45)
                 {
                     AddLog("Script: 00,15,30,45 Count(" + MyProxy.GoodProxyServer.Count.ToString() + ")");
                     RTStockPrice stockPrice = new RealTimeStockPrice.RTStockPrice();
-                    var t = stockPrice.GetStockCall();
+                    stockPrice.GetStockCall();
                 }
+            } else if (dt.Hour==15 && dt.Minute==0)
+            {
+                Master.SendFile();
+                AddLog("Market Calls Summary sent.");
             }
         }
 
@@ -81,8 +86,9 @@ namespace StockMaster
         private void Button2_Click(object sender, EventArgs e)
         {
             AddLog("Test run started. Count(" + MyProxy.GoodProxyServer.Count.ToString() + ")");
-            RTStockPrice stockPrice = new RealTimeStockPrice.RTStockPrice();
-            var t = stockPrice.GetStockCall(false);
+            //RTStockPrice stockPrice = new RealTimeStockPrice.RTStockPrice();
+            //var t = stockPrice.GetStockCall(false);
+            Master.SendFile();
         }
     }
 }

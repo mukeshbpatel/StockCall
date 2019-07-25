@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Mail;
-
+using System.Text;
 namespace RealTimeStockPrice
 {
     public static class Master
@@ -11,7 +11,7 @@ namespace RealTimeStockPrice
         public static decimal BodySize = 0.003M;
         private static string API_Proxy = @"http://api.scraperapi.com?api_key=be40c9c3ca77bc8b0632e4e508873845&url={{URL}}";
         private static List<Script> lstScript = new List<Script>();
-
+        private static string _path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Output");
         public static List<Script> Scripts()
         {
             if (lstScript.Count == 0)
@@ -120,15 +120,68 @@ namespace RealTimeStockPrice
 
         public static string FormatVolume(Decimal volume)
         {
-            if (volume < 100000M)
+            if (volume < 1000000M)
             {
                 return (volume / 1000M).ToString("0.0") + "K";
             }
             else
             {
-                return (volume / 100000M).ToString("0.0") + "M";
+                return (volume / 1000000M).ToString("0.0") + "M";
             }
         }
+
+        public static void SendFile()
+        {
+            try
+            {
+                string path = Path.Combine(_path, "Tread_" + DateTime.Now.ToString("yyyyMMdd") + ".txt");
+                if (File.Exists(path))
+                {
+                    string[] allfile = File.ReadAllLines(path);
+                    string dtString = DateTime.Today.ToString("dd/MM/yyyy").Replace("-","/") + " ";
+                    StringBuilder s = new StringBuilder();
+                    s.Append("Date: <b>" + DateTime.Today.ToLongDateString() + "</b>");
+                    s.Append("<table style='border-collapse:collapse; border:1px solid silver;'>");
+                    foreach (var item in allfile)
+                    {
+                        s.Append("<tr><td style='border:1px solid silver;'>");
+                        s.Append(item.Replace(dtString, string.Empty).Replace(",", "</td><td style='border:1px solid silver;'>"));
+                        s.Append("</td></tr>");
+                    }
+                    s.Append("</table>");
+                    using (SmtpClient client = new SmtpClient())
+                    {
+
+                        client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                        client.EnableSsl = true;
+                        client.Host = "smtp.mail.yahoo.com";
+                        client.Port = 587;
+                        // setup Smtp authentication
+                        System.Net.NetworkCredential credentials = new System.Net.NetworkCredential("ygcfund@yahoo.com", "y@cfund!@#$");
+                        client.UseDefaultCredentials = false;
+                        client.Credentials = credentials;
+                        using (MailMessage msg = new MailMessage())
+                        {
+                            Attachment attachment = new System.Net.Mail.Attachment(path);
+                            msg.Attachments.Add(attachment);
+
+                            msg.From = new MailAddress("ygcfund@yahoo.com", "Market Calls Summary");
+                            msg.To.Add(new MailAddress("mukeshbpatel@gmail.com", "Mukesh Patel"));
+                            msg.To.Add(new MailAddress("anjanampatel@gmail.com", "Anjana Patel"));
+                            msg.Subject = DateTime.Today.ToLongDateString() + " Calls";
+                            msg.IsBodyHtml = true;
+                            msg.Body = s.ToString();
+                            client.Send(msg);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
         public static void Sendmail(StockCall call)
         {
             try

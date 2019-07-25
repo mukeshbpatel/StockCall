@@ -103,7 +103,7 @@ namespace RealTimeStockPrice
                 {
                     call.AvgVolume = t.Average(a => a.Volume);
                     Master.Sendmail(call);
-                    if (!File.Exists(Path.Combine(_path, "_" + DateTime.Now.ToString("yyyyMMdd") + ".txt")))
+                    if (!File.Exists(Path.Combine(_path, "Tread_" + DateTime.Now.ToString("yyyyMMdd") + ".txt")))
                     {
                         System.IO.File.AppendAllText(Path.Combine(_path, "Tread_" + DateTime.Now.ToString("yyyyMMdd") + ".txt"), "Stock,Call,Date,Open,High,Low,Close,EMA21,Volume,Size");
                     }
@@ -176,25 +176,17 @@ namespace RealTimeStockPrice
         private string numStyle = "##,##,##0.00";
         private string _output = @"{{Stock}},{{Call}},{{Date}},{{Open}},{{High}},{{Low}},{{Close}},{{EMA21}},{{Volume}},{{Size}}";
 
-        private string _mail = @"<style>
-                        .tbl tr td, .tbl tr th {
-                            padding: 3px 5px 3px 5px;
-                            border: 1px solid silver;
-                            text-align:left;
-                        }
-                        .BUY { background-color:lightgreen;}
-                        .SELL { background-color:lightcoral;}
-                    </style>
-                    <table style='border-collapse:collapse;font-family:Verdana,Arial;min-width:250px;'>    
+        private string _mail = @"
+                    <table style='border-collapse:collapse;font-family:Verdana,Arial;min-width:250px; border: 1px solid silver;'>    
                             <tr class='{{Call}}'><th>{{Stock}}</th><th>{{Call}}</th></tr>
-                            <tr><td>Date</td><td style=''>{{Date}}</td></tr>
-                            <tr><td>Open</td><td>{{Open}}</td></tr>
-                            <tr><td>High</td><td>{{High}}</td></tr>
-                            <tr><td>Low</td><td>{{Low}}</td></tr>
-                            <tr><td>Close</td><td>{{Close}}</td></tr>
-                            <tr><td>EMA21</td><td>{{EMA21}}</td></tr>
-                            <tr><td>Volume</td><td>{{Volume}}({{Avg}})</td></tr>
-                            <tr><td>Body</td><td>{{Size}}({{Body}})</td></tr>    
+                            <tr><td style='border: 1px solid silver;'>Date</td><td style='border: 1px solid silver;'>{{Date}}</td></tr>
+                            <tr><td style='border: 1px solid silver;'>Open</td><td style='border: 1px solid silver;'>{{Open}}</td></tr>
+                            <tr><td style='border: 1px solid silver;'>High</td><td style='border: 1px solid silver;'>{{High}}</td></tr>
+                            <tr><td style='border: 1px solid silver;'>Low</td><td style='border: 1px solid silver;'>{{Low}}</td></tr>
+                            <tr><td style='border: 1px solid silver;'>Close</td><td style='border: 1px solid silver;'>{{Close}}</td></tr>
+                            <tr><td style='border: 1px solid silver;'>EMA21</td><td style='border: 1px solid silver;'>{{EMA21}}</td></tr>
+                            <tr><td style='border: 1px solid silver;'>Volume</td><td style='border: 1px solid silver;'>{{Volume}}({{Avg}})</td></tr>
+                            <tr><td style='border: 1px solid silver;'>Body</td><td style='border: 1px solid silver;'>{{Size}}({{Body}})</td></tr>    
                     </table>";
 
         public string Stock { get; set; }
@@ -218,7 +210,7 @@ namespace RealTimeStockPrice
         public string Print()
         {
             return _output.Replace("{{Stock}}", Stock)
-                .Replace("{{Date}}", this.Date.ToLongDateString() + " " + this.Date.ToLongTimeString())
+                .Replace("{{Date}}", this.Date.ToString("dd/MM/yyyy hh:mm tt"))
                 .Replace("{{Call}}", Call)
                 .Replace("{{Open}}", this.Open.ToString("0.00"))
                 .Replace("{{Close}}", this.Close.ToString("0.00"))
@@ -246,7 +238,7 @@ namespace RealTimeStockPrice
         public string MailBody()
         {
             return _mail.Replace("{{Stock}}", Stock)
-                .Replace("{{Date}}", this.Date.ToLongDateString() + " " + this.Date.ToLongTimeString())
+                .Replace("{{Date}}", this.Date.ToString("dd/MM/yy hh:mm tt"))
                 .Replace("{{Call}}", Call)
                 .Replace("{{Open}}", this.Open.ToString(numStyle))
                 .Replace("{{Close}}", this.Close.ToString(numStyle))
