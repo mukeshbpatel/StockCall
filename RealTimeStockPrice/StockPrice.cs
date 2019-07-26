@@ -85,15 +85,16 @@ namespace RealTimeStockPrice
                         //EMA9 = c.EMA,
                         EMA21 = b.EMA,
                         //VWAP= d.VWAP,
+                        LotSize = script.LotSize,
                         Call = Master.IsCall(a, b)
                     };
 
 
             StringBuilder s = new StringBuilder();
-            s.Append("Date,Open,High,Low,Close,Volume,Body,Size,EMA9,EMA21,VWAP,Call");
+            s.Append("Date,Open,High,Low,Close,Volume,Body,Size,EMA9,EMA21,VWAP,Call,LotSize");
             foreach (var item in t)
             {
-                s.Append(Environment.NewLine + item.Date.ToString() + "," + item.Open.ToString("0.00") + "," + item.High.ToString("0.00") + "," + item.Low.ToString("0.00") + "," + item.Close.ToString("0.00") + "," + item.Volume.ToString("0.00") + "," + item.Body.ToString("0.00") + "," + item.Size.ToString("0.00") + "," + item.EMA9.ToString("0.00") + "," + item.EMA21.ToString("0.00") + "," + item.VWAP.ToString("0.00") + "," + item.Call);
+                s.Append(Environment.NewLine + item.Date.ToString() + "," + item.Open.ToString("0.00") + "," + item.High.ToString("0.00") + "," + item.Low.ToString("0.00") + "," + item.Close.ToString("0.00") + "," + item.Volume.ToString("0.00") + "," + item.Body.ToString("0.00") + "," + item.Size.ToString("0.00") + "," + item.EMA9.ToString("0.00") + "," + item.EMA21.ToString("0.00") + "," + item.VWAP.ToString("0.00") + "," + item.Call + "," + item.LotSize.ToString("0"));
             }
             System.IO.File.WriteAllText(Path.Combine(_path, script.Code + "_" + script.ProxyDurty.ToString() + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".csv"), s.ToString());
             var call = t.First();
@@ -105,7 +106,7 @@ namespace RealTimeStockPrice
                     Master.Sendmail(call);
                     if (!File.Exists(Path.Combine(_path, "Tread_" + DateTime.Now.ToString("yyyyMMdd") + ".txt")))
                     {
-                        System.IO.File.AppendAllText(Path.Combine(_path, "Tread_" + DateTime.Now.ToString("yyyyMMdd") + ".txt"), "Stock,Call,Date,Open,High,Low,Close,EMA21,Volume,Size");
+                        System.IO.File.AppendAllText(Path.Combine(_path, "Tread_" + DateTime.Now.ToString("yyyyMMdd") + ".txt"), "Stock,Call,Date,Open,High,Low,Close,EMA21,Volume,Size,LotSize");
                     }
                     System.IO.File.AppendAllText(Path.Combine(_path, "Tread_" + DateTime.Now.ToString("yyyyMMdd") + ".txt"),Environment.NewLine + call.Print());
                 }
@@ -174,7 +175,7 @@ namespace RealTimeStockPrice
     public class StockCall
     {
         private string numStyle = "##,##,##0.00";
-        private string _output = @"{{Stock}},{{Call}},{{Date}},{{Open}},{{High}},{{Low}},{{Close}},{{EMA21}},{{Volume}},{{Size}}";
+        private string _output = @"{{Stock}},{{Call}},{{Date}},{{Open}},{{High}},{{Low}},{{Close}},{{EMA21}},{{Volume}},{{Size}},{{LotSize}}";
 
         private string _mail = @"
                     <table style='border-collapse:collapse;font-family:Verdana,Arial;min-width:250px; border: 1px solid silver;'>    
@@ -186,7 +187,8 @@ namespace RealTimeStockPrice
                             <tr><td style='border: 1px solid silver;'>Close</td><td style='border: 1px solid silver;'>{{Close}}</td></tr>
                             <tr><td style='border: 1px solid silver;'>EMA21</td><td style='border: 1px solid silver;'>{{EMA21}}</td></tr>
                             <tr><td style='border: 1px solid silver;'>Volume</td><td style='border: 1px solid silver;'>{{Volume}}({{Avg}})</td></tr>
-                            <tr><td style='border: 1px solid silver;'>Body</td><td style='border: 1px solid silver;'>{{Size}}({{Body}})</td></tr>    
+                            <tr><td style='border: 1px solid silver;'>Body</td><td style='border: 1px solid silver;'>{{Size}}({{Body}})</td></tr> 
+                            <tr><td style='border: 1px solid silver;'>Lot</td><td style='border: 1px solid silver;'>{{LotSize}}</td></tr> 
                     </table>";
 
         public string Stock { get; set; }
@@ -210,7 +212,7 @@ namespace RealTimeStockPrice
         public string Print()
         {
             return _output.Replace("{{Stock}}", Stock)
-                .Replace("{{Date}}", this.Date.ToString("dd/MM/yyyy hh:mm tt"))
+                .Replace("{{Date}}", this.Date.AddMinutes(15).ToString("dd/MM/yyyy hh:mm tt"))
                 .Replace("{{Call}}", Call)
                 .Replace("{{Open}}", this.Open.ToString("0.00"))
                 .Replace("{{Close}}", this.Close.ToString("0.00"))
@@ -218,6 +220,7 @@ namespace RealTimeStockPrice
                 .Replace("{{Low}}", this.Low.ToString("0.00"))
                 .Replace("{{EMA21}}", this.EMA21.ToString("0.00"))
                 .Replace("{{Size}}", this.Size.ToString("0.00"))
+                .Replace("{{LotSize}}", this.LotSize.ToString("0"))
                 .Replace("{{Volume}}", this.Volume.ToString());
         }
 
@@ -238,7 +241,7 @@ namespace RealTimeStockPrice
         public string MailBody()
         {
             return _mail.Replace("{{Stock}}", Stock)
-                .Replace("{{Date}}", this.Date.ToString("dd/MM/yy hh:mm tt"))
+                .Replace("{{Date}}", this.Date.AddMinutes(15).ToString("hh:mm tt"))
                 .Replace("{{Call}}", Call)
                 .Replace("{{Open}}", this.Open.ToString(numStyle))
                 .Replace("{{Close}}", this.Close.ToString(numStyle))
@@ -248,6 +251,7 @@ namespace RealTimeStockPrice
                 .Replace("{{Size}}", this.Size.ToString(numStyle))
                 .Replace("{{Body}}", (this.Low * 0.003M).ToString(numStyle))
                 .Replace("{{Volume}}", Master.FormatVolume(this.Volume))
+                .Replace("{{LotSize}}", this.LotSize.ToString("0"))
                 .Replace("{{Avg}}", Master.FormatVolume(this.AvgVolume));
         }
     }
@@ -272,6 +276,8 @@ namespace RealTimeStockPrice
     {
         public string Code { get; set; }
         public string key { get; set; }
+
+        public int LotSize { get; set; }
         public string ProxyURL { get; set; }
         public int ProxyPort { get; set; }
         public bool ProxyDurty { get; set; }

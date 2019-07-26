@@ -26,7 +26,7 @@ namespace RealTimeStockPrice
             {
                 string[] a = item.Split(',');
                 if (a[0] != "Script")
-                    lstScript.Add(new Script { Code = a[0], key = a[1] });
+                    lstScript.Add(new Script { Code = a[0], key = a[1], LotSize = int.Parse(a[2]) });
             }
         }
 

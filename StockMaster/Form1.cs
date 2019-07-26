@@ -86,9 +86,9 @@ namespace StockMaster
         private void Button2_Click(object sender, EventArgs e)
         {
             AddLog("Test run started. Count(" + MyProxy.GoodProxyServer.Count.ToString() + ")");
-            //RTStockPrice stockPrice = new RealTimeStockPrice.RTStockPrice();
-            //var t = stockPrice.GetStockCall(false);
-            Master.SendFile();
+            RTStockPrice stockPrice = new RealTimeStockPrice.RTStockPrice();
+            var t = stockPrice.GetStockCall(false);
+            //Master.SendFile();
         }
     }
 }
